@@ -77,14 +77,6 @@ def my_view(request):
 def my_view(request):
 	inst = AllViews(request)
 	frmSignup = AllViews()
-	#if 'email' in request.POST:
-	#	controls = request.POST.items()
-	#	import pdb;pdb.set_trace()
-	#	request.db['users'].insert({"email":db.request.POST['email'], "password":db.request.POST['password1']}) 
-	#	try:
-	#		appstruct = frmSignup.validate(controls)
-	#	except deform.ValidationFailure, e:
-	#		return {'form':e, "cssInc":headerInc('css'), "jsInc":headerInc('js')}
 	titles = set()
 	curs = request.db['videos'].find()
 	videos = []
