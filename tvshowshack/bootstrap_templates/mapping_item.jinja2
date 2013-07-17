@@ -25,7 +25,7 @@
     {% endif %}
     </label>
 {% endif %}
-<div class="input">
+<!--<div class="input">-->
   {{field.serialize(cstruct)}}
 
   {% if field.error and not field.widget.hidden %}
@@ -36,7 +36,7 @@
         <span id="{{pid}}" class="help-inline {{field.widget.error_class}}">{{_(msg)}}</span>
     {% endfor %}
   {% endif %}
-</div>
+<!--</div>-->
   <!-- /mapping_item -->
 {% if not field.widget.hidden %}
     </div>

@@ -1,0 +1,54 @@
+{% extends "mytemplate.jinja2"%}
+{% block content %}
+	{{form.render()|safe}}
+	<table class="table">
+		<thead>
+			<tr><td>Title</td></tr>
+		</thead>
+		<tbody>
+		{% for vid in videos %}
+			<tr>
+				<td>
+					<div id="{{ vid._id }}" class="collapse in">
+						<div class="accordion-group">
+					    	<div class="accordion-heading">
+					      		<a class="accordion-toggle" data-toggle="collapse" data-parent="#{{ vid._id }}" href="#collapse-{{ vid._id }}">
+									<dl>
+										<dt>
+											Watch {{ vid.title[0] }}
+										</dt>
+										<dd>
+											{{ vid.description[0] }}
+										</dd>
+									</dl>
+					      		</a>
+					    	</div>
+					    	<div id="collapse-{{ vid._id }}" class="accordion-body collapse">
+					      		<div class="accordion-inner">
+								</div>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+<script type="text/javascript">
+	$(function() { 
+		var o = 0;
+		{% for vid in videos %}
+			$("#{{ vid._id }}").on("click",function() {
+				console.log(o);
+				if (o == 0) {
+					$('#collapse-{{ vid._id }} > div').append('<iframe class="videoframe" src="{{ vid.url[0] }}"></iframe>');
+					o = 1;
+				}else {
+					$('#collapse-{{ vid._id }} > div > iframe').remove();
+					o = 0;
+				}
+			});
+		{% endfor %}
+	});
+</script>
+{% endblock %}

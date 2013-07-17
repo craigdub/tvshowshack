@@ -10,38 +10,7 @@ from pyramid.renderers import render_to_response
 import os
 
 _ = TranslationStringFactory('tvshowshack')
-"""
-	class PageSchema(Schema):
-		title = SchemaNode(String())
-		description = SchemaNode(
-		String(),
-		widget=TextAreaWidget(cols=40, rows=5),
-		missing=u"",
-		)
-		body = SchemaNode(
-			String(),
-			widget=RichTextWidget(),
-			missing=u"",
-		)
-"""
 
-"""
-	@view_config(route_name='home', renderer='form.pt')
-	class PageEditView(FormView):
-		schema = PageSchema()
-		buttons = ('save',)
-		form_options = (('formid', 'pyramid-deform'),('method', 'GET'))
-		@view_config(request_param='form.save')
-		def save_success(self, appstruct):
-			context = self.request.context
-			context.title = appstruct['title']
-			context.description = appstruct['description']
-			context.body = appstruct['body']
-			self.request.session.flash(u"Your changes have been saved.")
-			return HTTPFound(location=self.request.path_url)
-		def appstruct(self):
-			return {'title': context.title,'description': context.description,'body': context.body}
-"""
 class Person(colander.MappingSchema):
 	email = colander.SchemaNode(colander.String())
 	password1 = colander.SchemaNode(
@@ -54,31 +23,76 @@ class Person(colander.MappingSchema):
 								validator=colander.Length(min=5, max=100),
 								widget=deform.widget.PasswordWidget(size=20),
 								description='Enter a password')
+class Search(colander.MappingSchema):
+	search = colander.SchemaNode(colander.String())
+	category = colander.SchemaNode(colander.String())
+	type = colander.SchemaNode(
+        colander.String(),
+        widget = deform.widget.SelectWidget(values='tv'),
+    )
 
-class ProjectorViews(object):
-	def __init__(self, request):
-		self.request = request
-	def site_view(self):
-		schema = Person()
-		myform = deform.Form(schema, buttons=('submit',))
-		print os.getcwd()
-		return myform
+class MediaSearch(colander.MappingSchema):
+	txt = deform.widget.TextInputWidget(css_class='input-small search-wid')
+	auto = deform.widget.AutocompleteInputWidget(
+			css_class='input-small search-wid',
+            size=60,
+            min_length=1)
+	search = colander.SchemaNode(colander.String(),widget=auto)
+	category = colander.SchemaNode(colander.String(),widget=txt)
+	choices = (
+            ('', '- Select -'),
+            ('tv', 'TV Show'),
+            ('movie', 'Movie')
+            )
+	type = colander.SchemaNode(
+        colander.String(),
+        widget = deform.widget.SelectWidget(values=choices),css_class='dropdown-small search-wid'
+    )
 
-def headerInc(dir, p=os.getcwd()+'/tvshowshack/static'):
-	pth = os.path.join(p,dir)
-	return os.listdir(pth)
+class AllViews(colander.MappingSchema):
+    name = colander.SchemaNode(colander.String())
+    age = colander.SchemaNode(colander.Int(),
+                             validator=colander.Range(0, 200))
+    def searchMedia(self,videos):
+	    #search = Searches()
+	    search = MediaSearch()
+	    search.auto.values = videos
+	    myform = deform.Form(search, buttons=('submit',))
+	    return myform
 
-@view_config(route_name='signup', renderer='templates/mytemplate.jinja2')
+@view_config(route_name='home', renderer='templates/search.jinja2')
 def my_view(request):
-	inst = ProjectorViews(request)
-	frmSignup = inst.site_view()
-	if 'email' in request.POST:
-		controls = request.POST.items()
-		import pdb;pdb.set_trace()
-		request.db['users'].insert({"email":db.request.POST['email'], "password":db.request.POST['password1']}) 
-		try:
-			appstruct = frmSignup.validate(controls)
-		except deform.ValidationFailure, e:
-			return {'form':e, "cssInc":headerInc('css'), "jsInc":headerInc('js')}
-	return {"form":frmSignup,"cssInc":headerInc('css'), "jsInc":headerInc('js')}
+	inst = AllViews(request)
+	frmSignup = AllViews()
+	curs = request.db['videos'].find()
+	videos = []
+
+	for vid in curs:
+		videos.append(vid)
+	
+	return {"form":frmSignup.searchMedia(videos), "videos":videos}
+
+
+@view_config(route_name='video', renderer='templates/video.jinja2')
+def my_view(request):
+	inst = AllViews(request)
+	frmSignup = AllViews()
+	#if 'email' in request.POST:
+	#	controls = request.POST.items()
+	#	import pdb;pdb.set_trace()
+	#	request.db['users'].insert({"email":db.request.POST['email'], "password":db.request.POST['password1']}) 
+	#	try:
+	#		appstruct = frmSignup.validate(controls)
+	#	except deform.ValidationFailure, e:
+	#		return {'form':e, "cssInc":headerInc('css'), "jsInc":headerInc('js')}
+	titles = set()
+	curs = request.db['videos'].find()
+	videos = []
+
+	for vid in curs:
+		videos.append(vid)
+		if vid['title'] != []:
+			titles.add(vid['title'][0])
+	
+	return {"form":frmSignup.searchMedia(list(titles)), "videos":videos, 'titles':titles}
 

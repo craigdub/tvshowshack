@@ -1,0 +1,25 @@
+.shows {
+	position:relative;
+	margin-left:auto;
+	margin-right:auto;
+	width:900px;
+}
+.app-name {
+	content:"Tv Show Shack";
+}
+.clearfix {
+	float:left !important;
+}
+.actions {
+	position:relative;
+	height:55px;
+	float:left !important;
+}
+#deformsubmit {
+	position:absolute;
+	bottom:0;
+}
+.videoframe {
+	width:800px;
+	height:400px;
+}

@@ -95,7 +95,7 @@ def main(global_config, **settings):
 		config.add_translation_dirs('locale/')
 		config.scan('tvshowshack')
 		config.add_route('home', '/')
-		config.add_route('signup', '/signup')
+		config.add_route('video', '/video')
 		db_url = urlparse(settings['mongo_uri'])
 		config.registry.db = pymongo.Connection(
 											host=db_url.hostname,

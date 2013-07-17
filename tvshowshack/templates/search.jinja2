@@ -1,0 +1,14 @@
+{% extends "mytemplate.jinja2"%}
+{% block content %}
+	{{form.render()|safe}}
+	<table class="table">
+		<thead>
+			<tr><td>Title</td></tr>
+		</thead>
+		<tbody>
+		{% for vid in videos %}
+			<tr><td>{{ vid }}</td></tr>
+		{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}
